@@ -42,6 +42,11 @@ spec:
                 secretKeyRef:
                   name: zomboid-rcon-secret
                   key: RCON_PASSWORD
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: zomboid-rcon-secret
+                  key: ADMIN_PASSWORD
           ports:
             - name: game-port
               containerPort: 16261

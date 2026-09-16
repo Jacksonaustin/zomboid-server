@@ -16,6 +16,8 @@ RUN useradd -m -d /home/steam -s /bin/bash steam
 USER steam
 WORKDIR /home/steam
 
+RUN mkdir -p /home/steam/.steam
+
 RUN /usr/games/steamcmd +force_install_dir /home/steam/pzserver \
     +login anonymous \
     +app_update 380870 validate \

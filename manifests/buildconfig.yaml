@@ -4,6 +4,11 @@ metadata:
   name: zomboid-server
   namespace: zomboid
 spec:
+  resources:
+    requests:
+      ephemeral-storage: 8Gi
+    limits:
+      ephemeral-storage: 12Gi
   source:
     type: Git
     git:

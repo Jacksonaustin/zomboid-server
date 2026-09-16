@@ -47,6 +47,8 @@ spec:
                 secretKeyRef:
                   name: zomboid-rcon-secret
                   key: ADMIN_PASSWORD
+            - name: JVM_HEAP
+              value: "5g"
           ports:
             - name: game-port
               containerPort: 16261
@@ -59,11 +61,14 @@ spec:
               protocol: TCP
           resources:
             requests:
-              cpu: 500m
-              memory: 2Gi
-            limits:
-              cpu: "2"
+              cpu: "1"
               memory: 6Gi
+            limits:
+              # Deliberately no CPU limit: a CPU limit does not cap usage, it
+              # makes the kernel throttle the container every scheduling
+              # period, which shows up as stutter in a game server. The request
+              # still reserves capacity; bursting into idle node CPU is free.
+              memory: 8Gi
           volumeMounts:
             - name: data
               mountPath: /data

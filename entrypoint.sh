@@ -18,6 +18,17 @@ export SERVER_NAME RCON_PASSWORD
 envsubst < /home/steam/templates/servertest.ini.template \
     > "${HOME}/Zomboid/Server/${SERVER_NAME}.ini"
 
+# Zomboid reads its JVM args from ProjectZomboid64.json, and the JVM has no
+# awareness of the container's memory limit - left at its default -Xmx8g it
+# grows past the limit and gets OOMKilled. Pin the heap below the limit,
+# leaving headroom for non-heap memory (metaspace, stacks, native libs).
+# -Xms is normalised too, since an initial heap larger than the max stops the
+# JVM from starting at all.
+: "${JVM_HEAP:=5g}"
+sed -i -e "s/\"-Xmx[0-9]*[gGmM]\"/\"-Xmx${JVM_HEAP}\"/" \
+       -e "s/\"-Xms[0-9]*[gGmM]\"/\"-Xms2048m\"/" \
+       /data/pzserver/ProjectZomboid64.json
+
 # -adminpassword is required for a non-interactive first run. Without it the
 # server prompts for an admin password on stdin, and with no TTY attached that
 # read throws NoSuchElementException and the process dies immediately.

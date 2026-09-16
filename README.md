@@ -1,8 +1,6 @@
 # zomboid-server
 
-Hosting a Project Zomboid dedicated server on OpenShift, because apparently that's a normal thing to do now.
-
-My uncle (an actual Red Hat principal architect, no big deal) spun up a cluster for me on top of OpenStack and said "have fun." So this repo is me figuring out Kubernetes/OpenShift for real by building something I actually care about instead of another todo-app tutorial. If you're reading this because you also got handed a cluster and no idea what to do with it — welcome, same.
+Hosting a Project Zomboid dedicated server on OpenShift
 
 ## what this actually is
 

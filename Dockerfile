@@ -20,6 +20,7 @@ RUN dpkg --add-architecture i386 && \
 # group-writable. Without this the pod cannot write and crashloops.
 RUN useradd -u 1001 -g 0 -m -d /home/steam -s /bin/bash steam && \
     mkdir -p /home/steam/templates && \
+    chown -R 1001:0 /home/steam && \
     chmod -R g=u /home/steam
 
 USER 1001
@@ -28,8 +29,7 @@ WORKDIR /home/steam
 COPY --chown=1001:0 servertest.ini.template /home/steam/templates/servertest.ini.template
 COPY --chown=1001:0 install-server.sh /home/steam/install-server.sh
 COPY --chown=1001:0 entrypoint.sh /home/steam/entrypoint.sh
-RUN chmod 775 /home/steam/install-server.sh /home/steam/entrypoint.sh && \
-    chmod -R g=u /home/steam/templates
+RUN chmod 775 /home/steam/install-server.sh /home/steam/entrypoint.sh
 
 EXPOSE 16261/udp
 EXPOSE 16262/udp

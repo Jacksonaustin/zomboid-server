@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zomboid-server
+  namespace: zomboid
+  labels:
+    app: zomboid-server
+spec:
+  serviceName: zomboid-game
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zomboid-server
+  template:
+    metadata:
+      labels:
+        app: zomboid-server
+    spec:
+      terminationGracePeriodSeconds: 120
+      initContainers:
+        - name: install-server
+          image: image-registry.openshift-image-registry.svc:5000/zomboid/zomboid-server:latest
+          command: ["/home/steam/install-server.sh"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+      containers:
+        - name: zomboid
+          image: image-registry.openshift-image-registry.svc:5000/zomboid/zomboid-server:latest
+          env:
+            - name: SERVER_NAME
+              value: zomboid
+            - name: RCON_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: zomboid-rcon-secret
+                  key: RCON_PASSWORD
+          ports:
+            - name: game-port
+              containerPort: 16261
+              protocol: UDP
+            - name: query-port
+              containerPort: 16262
+              protocol: UDP
+            - name: rcon
+              containerPort: 27015
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 500m
+              memory: 2Gi
+            limits:
+              cpu: "2"
+              memory: 6Gi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: zomboid-data

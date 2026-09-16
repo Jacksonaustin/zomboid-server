@@ -1,21 +1,20 @@
 #!/bin/bash
 set -euo pipefail
 
-# OpenShift runs this container as an arbitrary UID with no /etc/passwd entry,
-# so $HOME can arrive unset or as "/". Pin it so the game writes its config and
-# save data where we expect them - and where the PVC gets mounted.
-export HOME=/home/steam
+# Zomboid writes its config and world saves under $HOME, so HOME points at the
+# volume to make that data persist. OpenShift also runs this container as an
+# arbitrary UID with no /etc/passwd entry, so HOME would otherwise be unset.
+export HOME=/data/home
 
 : "${SERVER_NAME:?SERVER_NAME must be set}"
 : "${RCON_PASSWORD:?RCON_PASSWORD must be set}"
 
 mkdir -p "${HOME}/Zomboid/Server"
 
-# Render the real .ini from the template, substituting the RCON password that
-# arrived as an env var from a Secret - it is never baked into the image or
-# committed to git in plaintext.
+# Render the real .ini from the template baked into the image, substituting the
+# RCON password that arrived as an env var from a Secret.
 export SERVER_NAME RCON_PASSWORD
-envsubst < "${HOME}/templates/servertest.ini.template" \
+envsubst < /home/steam/templates/servertest.ini.template \
     > "${HOME}/Zomboid/Server/${SERVER_NAME}.ini"
 
-exec "${HOME}/pzserver/start-server.sh" -servername "${SERVER_NAME}"
+exec /data/pzserver/start-server.sh -servername "${SERVER_NAME}"

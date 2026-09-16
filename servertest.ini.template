@@ -1,6 +1,6 @@
 PublicName=${SERVER_NAME}
 Public=false
-Open=false
+Open=true
 PVP=true
 MaxPlayers=10
 RCONPort=27015

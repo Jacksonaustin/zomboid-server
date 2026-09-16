@@ -8,7 +8,7 @@ spec:
     requests:
       ephemeral-storage: 8Gi
     limits:
-      ephemeral-storage: 12Gi
+      ephemeral-storage: 24Gi
   source:
     type: Git
     git:

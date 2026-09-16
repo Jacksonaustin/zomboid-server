@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: zomboid-game
+  namespace: zomboid
+  labels:
+    app: zomboid-server
+spec:
+  type: LoadBalancer
+  selector:
+    app: zomboid-server
+  ports:
+    - name: game-port
+      protocol: UDP
+      port: 16261
+      targetPort: 16261
+    - name: query-port
+      protocol: UDP
+      port: 16262
+      targetPort: 16262

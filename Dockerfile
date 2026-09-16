@@ -9,7 +9,8 @@ RUN dpkg --add-architecture i386 && \
 RUN echo steam steam/question select "I AGREE" | debconf-set-selections && \
     echo steam steam/license note '' | debconf-set-selections && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        steamcmd ca-certificates gettext-base && \
+        steamcmd ca-certificates gettext-base \
+        lib32gcc-s1 lib32stdc++6 && \
     rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -d /home/steam -s /bin/bash steam

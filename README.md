@@ -71,4 +71,4 @@ Once `zomboid-game` has a real `EXTERNAL-IP` (`oc get svc -n zomboid`), that's t
 
 ## why this exists
 
-Mostly to actually learn OpenShift instead of just reading about it, and partly because a Project Zomboid server with friends is funnier to justify as a "learning project" than yet another static site. Also yes, an actual principal architect at Red Hat is indirectly responsible for this existing, which feels like it should count for something on a resume.
+Mostly to actually learn OpenShift instead of just reading about it, and partly because a Project Zomboid server with friends is funnier to justify as a "learning project" than yet another static site. 

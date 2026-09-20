@@ -19,14 +19,27 @@ metadata:
   namespace: zomboid
 data:
   # Order here does not matter - it is just a download list.
-  WORKSHOP_ITEMS: "3402491515;3171167894;2896041179;2875848298;2313387159;2544353492;2847184718;2503622437;2286124931;2553809727;2710167561;2423906082;2335368829;2447729538;2463184726;2642541073;2618213077;3409472393;3776875714"
+  WORKSHOP_ITEMS: "3402491515;3171167894;2896041179;3077900375;2875848298;2313387159;2544353492;2847184718;2503622437;2286124931;2553809727;2710167561;2423906082;2335368829;2447729538;2463184726;2642541073;2618213077;3409472393;3776875714;3791686284"
 
   # Order here DOES matter. Grouped, in load order:
   #   libraries         tsarslib (Tsar's Common Library B42), damnlib (that DAMN Library)
-  #   admin             errorMagnifier - first, so it can report on everything after it
+  #   admin             ChuckleberryFinnAlertSystem + errorMagnifier - mutually required
+  #                     companion mods (same author); errorMagnifier goes first in the
+  #                     list so it can report on everything loaded after it
   #   quality of life   BB_CommonSense, BetterSortCC, P4HasBeenRead, ProximityInventory
   #   server staples    SkillRecoveryJournal, CombatText, KillCount, MapLegendUI
+  #                     (SkillRecoveryJournal also requires errorMagnifier +
+  #                     ChuckleberryFinnAlertSystem, both already above it)
   #   gear / cosmetic   BCGTools, Authentic Z - Current, FH (Fluffy Hair), SpnHair
   #   base vehicles     92amgeneralM998, 82oshkoshM911
+  #   vehicle libs      VFluidLib (Vehicle Fluid Logistics Library) - required by the
+  #                     water trailer mods below; must precede them
   #   vehicle add-ons   rSemiTruck (W900), rWaterTrailerB42 + rWaterTrailerSemiB42
-  MODS: "tsarslib;damnlib;errorMagnifier;BB_CommonSense;BetterSortCC;P4HasBeenRead;ProximityInventory;SkillRecoveryJournal;CombatText;KillCount;MapLegendUI;BCGTools;Authentic Z - Current;FH;SpnHair;92amgeneralM998;82oshkoshM911;rSemiTruck;rWaterTrailerB42;rWaterTrailerSemiB42"
+  #                     (rWaterTrailerB42 requires VFluidLib + damnlib; SemiB42
+  #                     requires rWaterTrailerB42 + 82oshkoshM911 - all satisfied above)
+  #
+  # Verified against each mod's own mod.info require= field on 2026-09-20 after a
+  # WorldDictionaryException crash traced to exactly these two missing dependencies -
+  # the Workshop pages for errorMagnifier/SkillRecoveryJournal/the water trailer mods
+  # don't mention them anywhere in their description text.
+  MODS: "tsarslib;damnlib;ChuckleberryFinnAlertSystem;errorMagnifier;BB_CommonSense;BetterSortCC;P4HasBeenRead;ProximityInventory;SkillRecoveryJournal;CombatText;KillCount;MapLegendUI;BCGTools;Authentic Z - Current;FH;SpnHair;92amgeneralM998;82oshkoshM911;VFluidLib;rSemiTruck;rWaterTrailerB42;rWaterTrailerSemiB42"

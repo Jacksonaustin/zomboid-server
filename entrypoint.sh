@@ -14,11 +14,20 @@ ZOMBOID_DIR=/home/steam/Zomboid
 : "${ADMIN_PASSWORD:?ADMIN_PASSWORD must be set}"
 : "${SERVER_PASSWORD:?SERVER_PASSWORD must be set}"
 
+# The mod list arrives from the zomboid-mods ConfigMap. Zomboid needs BOTH lines
+# for every mod: WorkshopItems is the numeric Workshop IDs it downloads, Mods is
+# the textual mod IDs it actually loads. A mod present in one but not the other
+# either never downloads or downloads and sits unused. Order in Mods is load
+# order, so library mods have to come before the mods that depend on them.
+# Defaulted to empty so the server still boots vanilla if the ConfigMap is absent.
+: "${WORKSHOP_ITEMS:=}"
+: "${MODS:=}"
+
 mkdir -p "${ZOMBOID_DIR}/Server"
 
 # Render the real .ini from the template baked into the image, substituting the
 # RCON password that arrived as an env var from a Secret.
-export SERVER_NAME RCON_PASSWORD SERVER_PASSWORD
+export SERVER_NAME RCON_PASSWORD SERVER_PASSWORD WORKSHOP_ITEMS MODS
 envsubst < /home/steam/templates/servertest.ini.template \
     > "${ZOMBOID_DIR}/Server/${SERVER_NAME}.ini"
 

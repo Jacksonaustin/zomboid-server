@@ -71,13 +71,14 @@ idle node CPU. Usage fell to ~50m at idle once it wasn't fighting the throttle.
 Dockerfile                     # steamcmd + scripts only, no game files
 install-server.sh              # init container: downloads the server onto the PVC
 entrypoint.sh                  # renders config, pins JVM heap, launches the server
-servertest.ini.template        # server config with ${SERVER_NAME}/${RCON_PASSWORD}
+servertest.ini.template        # server config, ${VARS} filled in at pod start
 manifests/
   namespace.yaml
   imagestream.yaml
   buildconfig.yaml             # builds this repo on-cluster
-  pvc.yaml                     # 30Gi: game files + saves
-  statefulset.yaml             # init container + server, resources, env from Secret
+  pvc.yaml                     # 30Gi: game files + saves + downloaded mods
+  configmap-mods.yaml          # the mod list, the one file you edit to change mods
+  statefulset.yaml             # init container + server, resources, env from Secret/ConfigMap
   service-loadbalancer.yaml    # public, UDP only
   service-rcon.yaml            # cluster-internal only
 ```
@@ -93,9 +94,11 @@ oc start-build zomboid-server --follow
 oc create secret generic zomboid-rcon-secret \
   --from-literal=RCON_PASSWORD='...' \
   --from-literal=ADMIN_PASSWORD='...' \
+  --from-literal=SERVER_PASSWORD='...' \
   -n zomboid
 
 oc apply -f manifests/pvc.yaml
+oc apply -f manifests/configmap-mods.yaml
 oc apply -f manifests/statefulset.yaml
 oc apply -f manifests/service-loadbalancer.yaml
 oc apply -f manifests/service-rcon.yaml
@@ -109,6 +112,53 @@ oc logs -f zomboid-server-0 -c install-server -n zomboid
 
 Once `oc get svc zomboid-game -n zomboid` shows an address, that's what needs
 **UDP** 16261 (and optionally 16262) routed to it. Not 27015.
+
+## Mods
+
+The mod list lives in `manifests/configmap-mods.yaml` — not in the image, not in
+the StatefulSet. It changes more often than anything else here and it isn't
+secret, so it gets its own ConfigMap. Changing mods is:
+
+```
+$EDITOR manifests/configmap-mods.yaml
+oc apply -f manifests/configmap-mods.yaml
+oc delete pod zomboid-server-0 -n zomboid
+```
+
+No image rebuild. The pod restart is required, not optional — env vars from a
+ConfigMap are resolved once at container start, so an applied ConfigMap does
+nothing to a running pod.
+
+Zomboid needs **two** lists and they are not interchangeable:
+
+| | what it is | what happens if a mod is missing from it |
+|---|---|---|
+| `WorkshopItems` | numeric Workshop IDs | never downloads |
+| `Mods` | textual mod IDs | downloads, then sits unused |
+
+They aren't 1:1 either — one Workshop item can ship several mod IDs (the water
+trailer ships two). And **order in `Mods` is load order**: library mods first,
+then base vehicles, then anything extending them. Getting that backwards is a
+stack trace on startup, not a warning.
+
+The server downloads the mods itself on first start after a change, so expect a
+slower boot — currently ~1.2GB of mod content, most of it Authentic Z's textures.
+That's also why the memory limit went 8Gi → 10Gi and the heap 5g → 6g: mod
+textures land in both heap and native memory, and this stack has been OOMKilled
+twice already. The *request* stayed at 6Gi, so scheduling is unchanged.
+
+Two things worth knowing about picking mods:
+
+- **Client and server mod lists must match.** A player missing a mod gets
+  rejected at connect. This is the only real "will my friend be able to join"
+  constraint — it's not OS-specific. Zomboid mods are Lua/assets interpreted by
+  the engine, with no platform-native binaries, so there's no such thing as a
+  Windows-only mod; Mac and Linux clients join a modded server fine.
+- **Verify on the Workshop page, not in a blog post.** `More Traits` was on the
+  list this came from, but its own page is titled "[Legacy, read description]"
+  and the author states there'll be no further updates or B42 compatibility
+  work. Left it out. Two others on that list were already flagged dead
+  upstream (`Equipment UI`, `More Description for Traits`).
 
 ## Things that broke, and why
 
@@ -162,4 +212,8 @@ up and double the image.
 - **Backups.** The PVC's reclaim policy is `Delete`, so deleting it destroys the
   world permanently, and nothing is copied off-volume. A CronJob tarring
   `Saves/` somewhere else is the obvious next step.
-- **Mod support.** `WorkshopItems`/`Mods` in the ini template, untested.
+- **Verifying the mod list in anger.** The 19 Workshop items are wired up and
+  the IDs were checked against their Workshop pages one by one, but a full
+  clean-boot-with-mods hasn't been watched end to end yet. `errorMagnifier` is
+  first in the load order specifically so that when something does break, the
+  log names the mod instead of dumping a Lua stack trace.

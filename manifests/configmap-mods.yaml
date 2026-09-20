@@ -1,0 +1,32 @@
+# The mod list lives here rather than in the StatefulSet or the image, because it
+# is the thing most likely to change and it is plain config, not deployment shape.
+# Editing this file + `oc apply` + `oc delete pod zomboid-server-0` is the whole
+# workflow for adding or removing a mod - no image rebuild.
+#
+# Zomboid needs two parallel lists and they are NOT interchangeable:
+#   WORKSHOP_ITEMS - numeric Steam Workshop IDs. This is what the server downloads.
+#   MODS           - textual mod IDs. This is what the server actually loads.
+# They are not 1:1: one Workshop item can ship several mod IDs (see the water
+# trailer below, which ships two). A mod listed in only one of the two either
+# never downloads or downloads and is silently ignored.
+#
+# Order in MODS is load order. Library mods must come before their dependants,
+# and base vehicle mods before the mods that extend them.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zomboid-mods
+  namespace: zomboid
+data:
+  # Order here does not matter - it is just a download list.
+  WORKSHOP_ITEMS: "3402491515;3171167894;2896041179;2875848298;2313387159;2544353492;2847184718;2503622437;2286124931;2553809727;2710167561;2423906082;2335368829;2447729538;2463184726;2642541073;2618213077;3409472393;3776875714"
+
+  # Order here DOES matter. Grouped, in load order:
+  #   libraries         tsarslib (Tsar's Common Library B42), damnlib (that DAMN Library)
+  #   admin             errorMagnifier - first, so it can report on everything after it
+  #   quality of life   BB_CommonSense, BetterSortCC, P4HasBeenRead, ProximityInventory
+  #   server staples    SkillRecoveryJournal, CombatText, KillCount, MapLegendUI
+  #   gear / cosmetic   BCGTools, Authentic Z - Current, FH (Fluffy Hair), SpnHair
+  #   base vehicles     92amgeneralM998, 82oshkoshM911
+  #   vehicle add-ons   rSemiTruck (W900), rWaterTrailerB42 + rWaterTrailerSemiB42
+  MODS: "tsarslib;damnlib;errorMagnifier;BB_CommonSense;BetterSortCC;P4HasBeenRead;ProximityInventory;SkillRecoveryJournal;CombatText;KillCount;MapLegendUI;BCGTools;Authentic Z - Current;FH;SpnHair;92amgeneralM998;82oshkoshM911;rSemiTruck;rWaterTrailerB42;rWaterTrailerSemiB42"

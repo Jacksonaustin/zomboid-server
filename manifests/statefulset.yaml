@@ -52,8 +52,20 @@ spec:
                 secretKeyRef:
                   name: zomboid-rcon-secret
                   key: SERVER_PASSWORD
+            # Mod list comes from a ConfigMap, not from here - it changes far more
+            # often than the deployment shape does, and it is not a secret.
+            - name: WORKSHOP_ITEMS
+              valueFrom:
+                configMapKeyRef:
+                  name: zomboid-mods
+                  key: WORKSHOP_ITEMS
+            - name: MODS
+              valueFrom:
+                configMapKeyRef:
+                  name: zomboid-mods
+                  key: MODS
             - name: JVM_HEAP
-              value: "5g"
+              value: "6g"
           ports:
             - name: game-port
               containerPort: 16261
@@ -73,7 +85,13 @@ spec:
               # makes the kernel throttle the container every scheduling
               # period, which shows up as stutter in a game server. The request
               # still reserves capacity; bursting into idle node CPU is free.
-              memory: 8Gi
+              #
+              # Raised from 8Gi when the mod list landed: ~1.2GB of mod content
+              # (Authentic Z alone is ~880MB of textures) loads into the heap and
+              # into native memory on top of the vanilla footprint. The request is
+              # deliberately left at 6Gi so scheduling is unchanged - this is only
+              # a ceiling, and the alternative was another OOMKill.
+              memory: 10Gi
           volumeMounts:
             - name: data
               mountPath: /data

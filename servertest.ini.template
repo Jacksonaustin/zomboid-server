@@ -6,3 +6,5 @@ PVP=true
 MaxPlayers=10
 RCONPort=27015
 RCONPassword=${RCON_PASSWORD}
+WorkshopItems=${WORKSHOP_ITEMS}
+Mods=${MODS}

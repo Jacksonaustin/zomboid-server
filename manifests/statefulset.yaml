@@ -35,8 +35,13 @@ spec:
         - name: zomboid
           image: image-registry.openshift-image-registry.svc:5000/zomboid/zomboid-server:latest
           env:
+            # New world/save for testing Authentic Z against a fresh map instead of
+            # the existing "zomboid" save, whose already-generated chunks are the
+            # suspected source of the duplicate-room crash. The old save is untouched
+            # on the PVC under Saves/Multiplayer/zomboid - safe to switch back anytime
+            # by reverting this value to "zomboid".
             - name: SERVER_NAME
-              value: zomboid
+              value: zomboid2
             - name: RCON_PASSWORD
               valueFrom:
                 secretKeyRef:

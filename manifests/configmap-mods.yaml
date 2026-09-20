@@ -31,6 +31,13 @@ data:
   #                     (SkillRecoveryJournal also requires errorMagnifier +
   #                     ChuckleberryFinnAlertSystem, both already above it)
   #   gear / cosmetic   BCGTools, Authentic Z - Current, FH (Fluffy Hair), SpnHair
+  #                     (Authentic Z is the only "Map"-tagged mod here and the prime
+  #                     suspect for a "duplicate RoomDef.metaID" world-load crash we
+  #                     hit adding it to an already-generated save - retrogenerating
+  #                     Authentic Z's map content onto existing chunks is a known bad
+  #                     mix for map-content mods generally. Testing on SERVER_NAME=
+  #                     zomboid2 - a brand new world/save - before concluding it's
+  #                     actually incompatible rather than just save-retrofit pain.)
   #   base vehicles     92amgeneralM998, 82oshkoshM911
   #   vehicle libs      VFluidLib (Vehicle Fluid Logistics Library) - required by the
   #                     water trailer mods below; must precede them

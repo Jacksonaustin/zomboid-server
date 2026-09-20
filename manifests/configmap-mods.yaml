@@ -19,7 +19,7 @@ metadata:
   namespace: zomboid
 data:
   # Order here does not matter - it is just a download list.
-  WORKSHOP_ITEMS: "3402491515;3171167894;2896041179;3077900375;2875848298;2313387159;2544353492;2847184718;2503622437;2286124931;2553809727;2710167561;2423906082;2335368829;2447729538;2463184726;2642541073;2618213077;3409472393;3776875714;3791686284"
+  WORKSHOP_ITEMS: "3402491515;3171167894;2896041179;3077900375;2875848298;2313387159;2544353492;2847184718;2503622437;2286124931;2553809727;2710167561;2423906082;2447729538;2463184726;2642541073;2618213077;3409472393;3776875714;3791686284"
 
   # Order here DOES matter. Grouped, in load order:
   #   libraries         tsarslib (Tsar's Common Library B42), damnlib (that DAMN Library)
@@ -30,14 +30,19 @@ data:
   #   server staples    SkillRecoveryJournal, CombatText, KillCount, MapLegendUI
   #                     (SkillRecoveryJournal also requires errorMagnifier +
   #                     ChuckleberryFinnAlertSystem, both already above it)
-  #   gear / cosmetic   BCGTools, Authentic Z - Current, FH (Fluffy Hair), SpnHair
-  #                     (Authentic Z is the only "Map"-tagged mod here and the prime
-  #                     suspect for a "duplicate RoomDef.metaID" world-load crash we
-  #                     hit adding it to an already-generated save - retrogenerating
-  #                     Authentic Z's map content onto existing chunks is a known bad
-  #                     mix for map-content mods generally. Testing on SERVER_NAME=
-  #                     zomboid2 - a brand new world/save - before concluding it's
-  #                     actually incompatible rather than just save-retrofit pain.)
+  #   gear / cosmetic   BCGTools, FH (Fluffy Hair), SpnHair
+  #                     (Authentic Z removed 2026-09-20: crashed IsoWorld.init with a
+  #                     WorldDictionaryException - "duplicate RoomDef.metaID" plus a
+  #                     "Mannequin zone missing properties" warning - on BOTH the
+  #                     original "zomboid" save AND a completely fresh "zomboid2"
+  #                     world generated with zero prior history. The fresh-world test
+  #                     ruled out "stale save data" as the cause: Muldraugh's building
+  #                     layout is static pre-authored content, not per-save procedural
+  #                     generation, so this is a genuine mod incompatibility, not a
+  #                     retrofit problem. Confirmed via steamcommunity.com/app/108600
+  #                     that the mannequin line alone is a known-harmless vanilla
+  #                     warning; the fatal part is the duplicate room ID, and Authentic
+  #                     Z is the only "Map"-tagged mod in this list.)
   #   base vehicles     92amgeneralM998, 82oshkoshM911
   #   vehicle libs      VFluidLib (Vehicle Fluid Logistics Library) - required by the
   #                     water trailer mods below; must precede them
@@ -49,4 +54,4 @@ data:
   # WorldDictionaryException crash traced to exactly these two missing dependencies -
   # the Workshop pages for errorMagnifier/SkillRecoveryJournal/the water trailer mods
   # don't mention them anywhere in their description text.
-  MODS: "tsarslib;damnlib;ChuckleberryFinnAlertSystem;errorMagnifier;BB_CommonSense;BetterSortCC;P4HasBeenRead;ProximityInventory;SkillRecoveryJournal;CombatText;KillCount;MapLegendUI;BCGTools;Authentic Z - Current;FH;SpnHair;92amgeneralM998;82oshkoshM911;VFluidLib;rSemiTruck;rWaterTrailerB42;rWaterTrailerSemiB42"
+  MODS: "tsarslib;damnlib;ChuckleberryFinnAlertSystem;errorMagnifier;BB_CommonSense;BetterSortCC;P4HasBeenRead;ProximityInventory;SkillRecoveryJournal;CombatText;KillCount;MapLegendUI;BCGTools;FH;SpnHair;92amgeneralM998;82oshkoshM911;VFluidLib;rSemiTruck;rWaterTrailerB42;rWaterTrailerSemiB42"

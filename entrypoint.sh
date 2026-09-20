@@ -1,22 +1,26 @@
 #!/bin/bash
 set -euo pipefail
 
-# Zomboid writes its config and world saves under $HOME, so HOME points at the
-# volume to make that data persist. OpenShift also runs this container as an
-# arbitrary UID with no /etc/passwd entry, so HOME would otherwise be unset.
-export HOME=/data/home
+# Zomboid locates its data directory via Java's user.home property, NOT the HOME
+# environment variable - and with OpenShift's arbitrary UID having no passwd
+# entry, that resolves to /home/steam no matter what we export. So rather than
+# fight it, the StatefulSet mounts the PVC at /home/steam/Zomboid and we write
+# config there. ZOMBOID_DIR is that path.
+export HOME=/home/steam
+ZOMBOID_DIR=/home/steam/Zomboid
 
 : "${SERVER_NAME:?SERVER_NAME must be set}"
 : "${RCON_PASSWORD:?RCON_PASSWORD must be set}"
 : "${ADMIN_PASSWORD:?ADMIN_PASSWORD must be set}"
+: "${SERVER_PASSWORD:?SERVER_PASSWORD must be set}"
 
-mkdir -p "${HOME}/Zomboid/Server"
+mkdir -p "${ZOMBOID_DIR}/Server"
 
 # Render the real .ini from the template baked into the image, substituting the
 # RCON password that arrived as an env var from a Secret.
-export SERVER_NAME RCON_PASSWORD
+export SERVER_NAME RCON_PASSWORD SERVER_PASSWORD
 envsubst < /home/steam/templates/servertest.ini.template \
-    > "${HOME}/Zomboid/Server/${SERVER_NAME}.ini"
+    > "${ZOMBOID_DIR}/Server/${SERVER_NAME}.ini"
 
 # Zomboid reads its JVM args from ProjectZomboid64.json, and the JVM has no
 # awareness of the container's memory limit - left at its default -Xmx8g it

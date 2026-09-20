@@ -47,6 +47,11 @@ spec:
                 secretKeyRef:
                   name: zomboid-rcon-secret
                   key: ADMIN_PASSWORD
+            - name: SERVER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: zomboid-rcon-secret
+                  key: SERVER_PASSWORD
             - name: JVM_HEAP
               value: "5g"
           ports:
@@ -72,6 +77,12 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
+            # Zomboid resolves its data dir from Java's user.home, which lands on
+            # /home/steam under OpenShift's arbitrary UID. Back that path with the
+            # PVC so config and world saves actually persist.
+            - name: data
+              mountPath: /home/steam/Zomboid
+              subPath: zomboid-home
       volumes:
         - name: data
           persistentVolumeClaim:

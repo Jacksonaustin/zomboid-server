@@ -19,14 +19,26 @@ metadata:
   namespace: zomboid
 data:
   # Order here does not matter - it is just a download list.
-  WORKSHOP_ITEMS: "3402491515;3171167894;2896041179;3077900375;2875848298;2313387159;2544353492;2847184718;2503622437;2286124931;2553809727;2710167561;2423906082;2447729538;2463184726;2642541073;2618213077;3409472393;3776875714;3791686284"
+  WORKSHOP_ITEMS: "3402491515;3171167894;2896041179;3077900375;3717968421;2313387159;2544353492;2847184718;2503622437;2286124931;2553809727;2710167561;2423906082;2447729538;2463184726;2642541073;2618213077;3409472393;3776875714;3791686284"
 
   # Order here DOES matter. Grouped, in load order:
   #   libraries         tsarslib (Tsar's Common Library B42), damnlib (that DAMN Library)
   #   admin             ChuckleberryFinnAlertSystem + errorMagnifier - mutually required
   #                     companion mods (same author); errorMagnifier goes first in the
   #                     list so it can report on everything loaded after it
-  #   quality of life   BB_CommonSense, BetterSortCC, P4HasBeenRead, ProximityInventory
+  #   quality of life   BB_CommonSenseFix, BetterSortCC, P4HasBeenRead, ProximityInventory
+  #                     (BB_CommonSense swapped for BB_CommonSenseFix 2026-09-21: the
+  #                     original throws a real Lua RuntimeException in its own
+  #                     BB_CS_RecipeCode.lua on require("recipecode") - confirmed via
+  #                     multiple community B42 patch mods and a Steam thread titled
+  #                     "Common Sense mod is broken, DO NOT USE IT". This crash was
+  #                     the one actually tripping IsoWorld.init's end-of-load abort;
+  #                     Authentic Z and the duplicate-room/mannequin/Alcohol-fluid
+  #                     lines were all red herrings caught earlier in this same
+  #                     debugging session. BB_CommonSenseFix is a standalone
+  #                     replacement (own page: "Do not enable this version and the
+  #                     original Common Sense mod together") - no dependency on the
+  #                     original, nothing else in this file changes.
   #   server staples    SkillRecoveryJournal, CombatText, KillCount, MapLegendUI
   #                     (SkillRecoveryJournal also requires errorMagnifier +
   #                     ChuckleberryFinnAlertSystem, both already above it)
@@ -54,4 +66,4 @@ data:
   # WorldDictionaryException crash traced to exactly these two missing dependencies -
   # the Workshop pages for errorMagnifier/SkillRecoveryJournal/the water trailer mods
   # don't mention them anywhere in their description text.
-  MODS: "tsarslib;damnlib;ChuckleberryFinnAlertSystem;errorMagnifier;BB_CommonSense;BetterSortCC;P4HasBeenRead;ProximityInventory;SkillRecoveryJournal;CombatText;KillCount;MapLegendUI;BCGTools;FH;SpnHair;92amgeneralM998;82oshkoshM911;VFluidLib;rSemiTruck;rWaterTrailerB42;rWaterTrailerSemiB42"
+  MODS: "tsarslib;damnlib;ChuckleberryFinnAlertSystem;errorMagnifier;BB_CommonSenseFix;BetterSortCC;P4HasBeenRead;ProximityInventory;SkillRecoveryJournal;CombatText;KillCount;MapLegendUI;BCGTools;FH;SpnHair;92amgeneralM998;82oshkoshM911;VFluidLib;rSemiTruck;rWaterTrailerB42;rWaterTrailerSemiB42"

@@ -6,5 +6,12 @@ PVP=true
 MaxPlayers=10
 RCONPort=27015
 RCONPassword=${RCON_PASSWORD}
+# Zomboid does NOT save world changes on a plain SIGTERM (which is what
+# `oc delete pod` sends) - it only writes to disk on chunk-unload or a clean
+# in-game /save or /quit. Without this, anything changed since the area last
+# had zero players nearby is lost on every pod restart, including ones done
+# purely for mod/config changes. This bounds the loss window to ~5 minutes
+# regardless of how the pod gets restarted.
+SaveWorldEveryMinutes=5
 WorkshopItems=${WORKSHOP_ITEMS}
 Mods=${MODS}

@@ -36,7 +36,7 @@ spec:
           image: image-registry.openshift-image-registry.svc:5000/zomboid/zomboid-server:latest
           env:
             - name: SERVER_NAME
-              value: zomboid2
+              value: zomboid3
             - name: RCON_PASSWORD
               valueFrom:
                 secretKeyRef:
